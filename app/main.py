@@ -67,20 +67,11 @@ def render_result(result: dict):
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric(
-            label="Probability of Misinformation",
-            value=f"{p_fake * 100:.1f}%",
-        )
+        st.metric(label="Probability of Misinformation", value=f"{p_fake * 100:.1f}%")
     with col2:
-        st.metric(
-            label="95% Confidence Interval",
-            value=f"[{ci[0] * 100:.1f}%, {ci[1] * 100:.1f}%]",
-        )
+        st.metric(label="95% Confidence Interval", value=f"[{ci[0] * 100:.1f}%, {ci[1] * 100:.1f}%]")
     with col3:
-        st.metric(
-            label="Detected Language",
-            value=lang,
-        )
+        st.metric(label="Detected Language", value=lang)
 
     st.write("")
 

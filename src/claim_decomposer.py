@@ -39,9 +39,7 @@ class ClaimDecomposer:
         for attempt in range(max_retries):
             try:
                 response = self.client.invoke(messages)
-                if hasattr(response, "content"):
-                    return str(response.content)
-                return str(response)
+                return str(getattr(response, "content", response))
             except Exception as e:
                 err_str = str(e).lower()
                 if "429" in err_str or "rate_limit" in err_str or "too many requests" in err_str:
@@ -73,6 +71,7 @@ class ClaimDecomposer:
         return None
 
     def decompose(self, claim: str, language: str = "en") -> List[str]:
+        """Decompose claim into atomic sub-claims."""
         claim = claim.strip()
         if not claim:
             return []
@@ -92,9 +91,7 @@ class ClaimDecomposer:
         parsed = self._parse_json(raw_response)
 
         if parsed is None:
-            repair_messages = list(messages) + [
-                HumanMessage(content=REPAIR_PROMPT)
-            ]
+            repair_messages = list(messages) + [HumanMessage(content=REPAIR_PROMPT)]
             repair_response = self._call_groq(repair_messages)
             parsed = self._parse_json(repair_response)
 

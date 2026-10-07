@@ -1,4 +1,4 @@
-﻿"""Bayesian confidence score aggregator for multi-evidence claim verification."""
+﻿"""Bayesian confidence score aggregator."""
 
 import math
 from typing import Dict, List, Tuple
@@ -21,15 +21,7 @@ def compute_wilson_interval(p: float, n: int, confidence: float = 0.95) -> Tuple
 
 
 def aggregate(subclaim_results: List[Dict], prior_fake: float = 0.5) -> Dict:
-    """Aggregate atomic sub-claim stance predictions using iterative Bayes update.
-
-    Args:
-        subclaim_results: List of dicts with keys 'sub_claim', 'stance', and 'sources'.
-        prior_fake: Prior probability that the overall claim is fake.
-
-    Returns:
-        Dict containing probability_fake, verdict, confidence_interval, and evidence_trace.
-    """
+    """Aggregate atomic sub-claim stance predictions using Bayes update."""
     if not subclaim_results:
         p_fake = round(prior_fake, 4)
         return {

@@ -1,4 +1,4 @@
-﻿"""Unit tests for VerificationPipeline module."""
+"""Tests for verification pipeline."""
 
 from unittest.mock import MagicMock, patch
 import pytest

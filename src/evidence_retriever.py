@@ -1,4 +1,4 @@
-﻿"""Evidence retrieval module using Gemini 3.5 Flash with grounded search."""
+﻿"""Evidence retrieval module using Gemini with grounded search."""
 
 import time
 from typing import Any, Dict, List, Optional
@@ -7,7 +7,7 @@ from src.cache import DiskCache
 
 
 class EvidenceRetriever:
-    """Retrieves grounded search evidence for factual sub-claims using Gemini."""
+    """Retrieves grounded search evidence for factual sub-claims."""
 
     def __init__(
         self,
@@ -151,6 +151,7 @@ class EvidenceRetriever:
         return results
 
     def retrieve(self, sub_claim: str) -> List[Dict[str, str]]:
+        """Retrieve grounded evidence for sub-claim."""
         sub_claim = sub_claim.strip()
         if not sub_claim:
             return []

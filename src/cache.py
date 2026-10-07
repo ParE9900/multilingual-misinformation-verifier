@@ -1,4 +1,4 @@
-"""SQLite-based persistent disk cache for LLM queries and intermediate artifacts."""
+﻿"""SQLite-based persistent disk cache."""
 
 import hashlib
 import json
@@ -12,18 +12,12 @@ class DiskCache:
     """Thread-safe SQLite persistent disk cache with TTL support."""
 
     def __init__(self, path: str = ".cache/cache.db"):
-        """Initialize DiskCache and setup database table.
-
-        Args:
-            path: Path to the SQLite cache database file.
-        """
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(str(self.path), check_same_thread=False)
         self._init_db()
 
     def _init_db(self) -> None:
-        """Create cache table schema if it does not already exist."""
         with self.conn:
             self.conn.execute(
                 """
@@ -36,20 +30,11 @@ class DiskCache:
             )
 
     def _generate_key(self, namespace: str, key: str) -> str:
-        """Generate SHA-256 hash key from namespace and key."""
         combined = f"{namespace}|{key}".encode("utf-8")
         return hashlib.sha256(combined).hexdigest()
 
     def get(self, namespace: str, key: str) -> Optional[Any]:
-        """Retrieve value from cache if present and not expired.
-
-        Args:
-            namespace: Namespace partition for the key.
-            key: Lookup key.
-
-        Returns:
-            Deserialized JSON value or None if missing or expired.
-        """
+        """Retrieve value from cache if present and unexpired."""
         cache_key = self._generate_key(namespace, key)
         cursor = self.conn.cursor()
         cursor.execute(
@@ -62,7 +47,6 @@ class DiskCache:
 
         val_str, expires_at = row
         if time.time() > expires_at:
-            # Purge expired entry
             with self.conn:
                 self.conn.execute("DELETE FROM cache WHERE cache_key = ?", (cache_key,))
             return None
@@ -70,14 +54,7 @@ class DiskCache:
         return json.loads(val_str)
 
     def set(self, namespace: str, key: str, value: Any, ttl: int = 86400) -> None:
-        """Store value in cache with specified TTL in seconds.
-
-        Args:
-            namespace: Namespace partition for the key.
-            key: Lookup key.
-            value: JSON-serializable value to store.
-            ttl: Time-to-live in seconds (default: 86400, i.e., 24 hours).
-        """
+        """Store value in cache with specified TTL in seconds."""
         cache_key = self._generate_key(namespace, key)
         expires_at = time.time() + ttl
         serialized_val = json.dumps(value)
@@ -91,7 +68,7 @@ class DiskCache:
             )
 
     def close(self) -> None:
-        """Close the SQLite database connection."""
+        """Close SQLite database connection."""
         if self.conn:
             self.conn.close()
 

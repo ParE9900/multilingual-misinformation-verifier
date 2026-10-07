@@ -1,7 +1,6 @@
-﻿"""Unit tests for ClaimDecomposer module."""
+﻿"""Tests for ClaimDecomposer module."""
 
 from unittest.mock import MagicMock, patch
-import pytest
 from src.cache import DiskCache
 from src.claim_decomposer import ClaimDecomposer
 

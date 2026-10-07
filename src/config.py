@@ -1,4 +1,4 @@
-"""Configuration loader for Multilingual Misinformation Verifier."""
+﻿"""Configuration loader for the verifier project."""
 
 from dataclasses import dataclass
 import os
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 @dataclass
 class Config:
-    """Application configuration and credentials."""
+    """Project credentials and model configurations."""
 
     GROQ_API_KEY: str
     GEMINI_API_KEY: str
@@ -22,18 +22,7 @@ class Config:
 
 
 def get_config(env_path: Optional[str | Path] = None, override: bool = False) -> Config:
-    """Load configuration from .env file or environment variables.
-
-    Args:
-        env_path: Optional path to .env file.
-        override: If True, override existing environment variables with values from .env.
-
-    Returns:
-        Config: Populated configuration dataclass instance.
-
-    Raises:
-        RuntimeError: If any of GROQ_API_KEY, GEMINI_API_KEY, or HF_TOKEN are missing.
-    """
+    """Load configuration from environment variables or .env file."""
     if env_path is not None:
         dotenv_file = Path(env_path)
     else:
@@ -59,10 +48,7 @@ def get_config(env_path: Optional[str | Path] = None, override: bool = False) ->
         missing.append("HF_TOKEN")
 
     if missing:
-        raise RuntimeError(
-            f"Missing required API key(s): {', '.join(missing)}. "
-            "Please ensure they are set in .env or as environment variables."
-        )
+        raise RuntimeError(f"Missing required API key(s): {', '.join(missing)}.")
 
     return Config(
         GROQ_API_KEY=groq_api_key,
@@ -71,8 +57,6 @@ def get_config(env_path: Optional[str | Path] = None, override: bool = False) ->
         GROQ_MODEL=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
         GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
         NLI_MODEL_NAME=os.getenv("NLI_MODEL_NAME", "xlm-roberta-base"),
-        LANG_DETECT_MODEL=os.getenv(
-            "LANG_DETECT_MODEL", "papluca/xlm-roberta-base-language-detection"
-        ),
+        LANG_DETECT_MODEL=os.getenv("LANG_DETECT_MODEL", "papluca/xlm-roberta-base-language-detection"),
         CACHE_DIR=os.getenv("CACHE_DIR", ".cache"),
     )

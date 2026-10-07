@@ -1,13 +1,10 @@
-"""Unit tests for configuration loader module."""
+﻿"""Tests for configuration loader module."""
 
-import os
-from pathlib import Path
 import pytest
 from src.config import Config, get_config
 
 
 def test_get_config_loads_from_existing_env():
-    """Verify that get_config successfully loads keys from the project .env."""
     config = get_config()
     assert isinstance(config, Config)
     assert config.GROQ_API_KEY and len(config.GROQ_API_KEY) > 0
@@ -21,12 +18,9 @@ def test_get_config_loads_from_existing_env():
 
 
 def test_get_config_raises_on_missing_keys(monkeypatch, tmp_path):
-    """Verify RuntimeError is raised when any required API key is missing."""
-    # Create empty dummy env file
     empty_env = tmp_path / ".env.empty"
     empty_env.write_text("", encoding="utf-8")
 
-    # Remove relevant environment variables
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("HF_TOKEN", raising=False)
@@ -42,12 +36,8 @@ def test_get_config_raises_on_missing_keys(monkeypatch, tmp_path):
 
 
 def test_get_config_partial_missing_key(monkeypatch, tmp_path):
-    """Verify RuntimeError is raised when one specific required key is missing."""
     custom_env = tmp_path / ".env.partial"
-    custom_env.write_text(
-        "GROQ_API_KEY=test_groq\nGEMINI_API_KEY=test_gemini\n",
-        encoding="utf-8",
-    )
+    custom_env.write_text("GROQ_API_KEY=test_groq\nGEMINI_API_KEY=test_gemini\n", encoding="utf-8")
 
     monkeypatch.delenv("HF_TOKEN", raising=False)
 

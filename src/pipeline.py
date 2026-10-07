@@ -36,14 +36,7 @@ class VerificationPipeline:
         )
 
     def verify(self, claim: str) -> Dict[str, Any]:
-        """Execute end-to-end fact-checking pipeline on a user claim.
-
-        Args:
-            claim: Raw factual claim to verify.
-
-        Returns:
-            Dict containing verification status, probability, verdict, CI, evidence, and timings.
-        """
+        """Execute fact-checking pipeline on a user claim."""
         try:
             claim_str = (claim or "").strip()
             if not claim_str:
@@ -51,7 +44,6 @@ class VerificationPipeline:
 
             timings_ms: Dict[str, float] = {}
 
-            # Step 1: Detect language
             t0 = time.perf_counter()
             try:
                 language = self.nli.detect_language(claim_str)
@@ -59,7 +51,6 @@ class VerificationPipeline:
                 language = "en"
             timings_ms["detect_language"] = round((time.perf_counter() - t0) * 1000, 2)
 
-            # Step 2: Decompose claim into atomic sub-claims
             t0 = time.perf_counter()
             try:
                 sub_claims = self.decomposer.decompose(claim_str, language=language)
@@ -70,7 +61,6 @@ class VerificationPipeline:
             if not sub_claims:
                 sub_claims = [claim_str]
 
-            # Step 3: Retrieve evidence and classify stance for each sub-claim
             t0 = time.perf_counter()
             subclaim_results: List[Dict[str, Any]] = []
 
@@ -103,7 +93,6 @@ class VerificationPipeline:
                     "message": "All sub-claim retrievals failed.",
                 }
 
-            # Step 4: Bayesian Aggregation
             t0 = time.perf_counter()
             aggregated = aggregate(subclaim_results)
             timings_ms["aggregate"] = round((time.perf_counter() - t0) * 1000, 2)

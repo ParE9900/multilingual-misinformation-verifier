@@ -1,6 +1,5 @@
-﻿"""Unit tests for Bayesian aggregation module."""
+﻿"""Tests for Bayesian aggregation module."""
 
-import pytest
 from src.bayes_aggregator import aggregate
 
 

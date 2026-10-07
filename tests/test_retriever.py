@@ -1,7 +1,6 @@
-﻿"""Unit tests for EvidenceRetriever module."""
+﻿"""Tests for EvidenceRetriever module."""
 
 from unittest.mock import MagicMock, patch
-import pytest
 from src.cache import DiskCache
 from src.evidence_retriever import EvidenceRetriever
 
@@ -36,9 +35,7 @@ def test_retrieve_without_grounding_chunks(tmp_path):
         mock_client = MagicMock()
         mock_response = MagicMock()
         mock_candidate = MagicMock()
-        mock_candidate.grounding_metadata = {
-            "grounding_chunks": []
-        }
+        mock_candidate.grounding_metadata = {"grounding_chunks": []}
         mock_response.candidates = [mock_candidate]
         mock_client.models.generate_content.return_value = mock_response
         mock_client_cls.return_value = mock_client
