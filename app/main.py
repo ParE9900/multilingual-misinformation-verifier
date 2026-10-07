@@ -134,16 +134,16 @@ def main():
         if not clean_claim:
             st.warning("Please enter a claim to verify.")
         else:
-            with st.spinner("Verifying claim... Decomposing, retrieving evidence, and computing confidence. This may take up to 60 seconds."):
+            with st.spinner("Verifying claim... Decomposing, retrieving evidence, and computing confidence. This may take up to 3 mins."):
                 executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
                 future = executor.submit(pipeline.verify, clean_claim)
                 try:
-                    result = future.result(timeout=60.0)
+                    result = future.result(timeout=180.0)
                     st.session_state["last_result"] = result
                 except concurrent.futures.TimeoutError:
                     st.session_state["last_result"] = {
                         "status": "error",
-                        "message": "Verification timed out after 60 seconds.",
+                        "message": "Verification timed out after 3 minutes.",
                     }
                 except Exception as e:
                     st.session_state["last_result"] = {

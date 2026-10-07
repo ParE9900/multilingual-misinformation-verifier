@@ -47,14 +47,16 @@ class VerificationPipeline:
             t0 = time.perf_counter()
             try:
                 language = self.nli.detect_language(claim_str)
-            except Exception:
+            except Exception as e:
+                print(f"[DEBUG] Language detection failed: {e}")
                 language = "en"
             timings_ms["detect_language"] = round((time.perf_counter() - t0) * 1000, 2)
 
             t0 = time.perf_counter()
             try:
                 sub_claims = self.decomposer.decompose(claim_str, language=language)
-            except Exception:
+            except Exception as e:
+                print(f"[DEBUG] Decomposition failed: {e}")
                 sub_claims = [claim_str]
             timings_ms["decompose"] = round((time.perf_counter() - t0) * 1000, 2)
 
@@ -82,7 +84,8 @@ class VerificationPipeline:
                         "stance": stance,
                         "sources": sources or [],
                     })
-                except Exception:
+                except Exception as e:
+                    print(f"[DEBUG] Sub-claim retrieval/stance failed for '{sub_claim}': {e}")
                     continue
 
             timings_ms["retrieve_and_classify"] = round((time.perf_counter() - t0) * 1000, 2)
