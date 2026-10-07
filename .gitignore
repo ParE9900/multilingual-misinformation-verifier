@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project Tracking
+master_plan.md
+decisions.md
+
+# Raw Zips
+*.zip
+
+# Raw Data (keep local, do not commit to git)
+data/raw/
