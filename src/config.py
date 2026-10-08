@@ -14,7 +14,7 @@ class Config:
     HF_TOKEN: str
     GROQ_MODEL: str = "openai/gpt-oss-20b"
     GEMINI_MODEL: str = "gemini-3.5-flash"
-    NLI_MODEL_NAME: str = "xlm-roberta-base"
+    NLI_MODEL_NAME: str = "Pa3407/misinfo-xlmr-nli"
     LANG_DETECT_MODEL: str = "papluca/xlm-roberta-base-language-detection"
     CACHE_DIR: str = ".cache"
 
@@ -63,9 +63,9 @@ def get_config(env_path: Optional[str | Path] = None, override: bool = False) ->
         GROQ_API_KEY=groq_api_key,
         GEMINI_API_KEY=gemini_api_key,
         HF_TOKEN=hf_token,
-        GROQ_MODEL=_get_val("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        GROQ_MODEL=_get_val("GROQ_MODEL", "openai/gpt-oss-20b"),
         GEMINI_MODEL=_get_val("GEMINI_MODEL", "gemini-3.5-flash"),
-        NLI_MODEL_NAME=_get_val("NLI_MODEL_NAME", "xlm-roberta-base"),
+        NLI_MODEL_NAME=_get_val("NLI_MODEL_NAME", "Pa3407/misinfo-xlmr-nli"),
         LANG_DETECT_MODEL=_get_val("LANG_DETECT_MODEL", "papluca/xlm-roberta-base-language-detection"),
         CACHE_DIR=_get_val("CACHE_DIR", ".cache"),
     )
