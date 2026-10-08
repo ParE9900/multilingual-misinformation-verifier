@@ -9,7 +9,10 @@ from src.cache import DiskCache
 
 SYSTEM_PROMPT = (
     "You are a fact-checking assistant. Decompose the following claim into 3-7 atomic, "
-    "independently verifiable sub-claims. Output strict JSON in the format: "
+    "independently verifiable sub-claims. "
+    "CRITICAL: Do NOT correct, negate, or alter the original claim's meaning. "
+    "If the claim is 'The Earth is flat', the sub-claims must assert that the Earth is flat. "
+    "Output strict JSON in the format: "
     '{"sub_claims": ["sub-claim 1", "sub-claim 2"]}. Do not include any other text or commentary.'
 )
 REPAIR_PROMPT = "Your previous response was not valid JSON. Please output ONLY valid JSON."
