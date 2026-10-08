@@ -10,7 +10,6 @@ from src.config import Config
 from src.evidence_retriever import EvidenceRetriever
 from src.nli_classifier import NLIClassifier
 
-
 class VerificationPipeline:
     """Orchestrates language detection, decomposition, evidence retrieval, and Bayesian fusion."""
 
@@ -43,12 +42,13 @@ class VerificationPipeline:
                 return {"status": "error", "message": "Empty claim provided."}
 
             timings_ms: Dict[str, float] = {}
+            errors: List[str] = []
 
             t0 = time.perf_counter()
             try:
                 language = self.nli.detect_language(claim_str)
             except Exception as e:
-                print(f"[DEBUG] Language detection failed: {e}")
+                errors.append(f"Language detection failed: {e}")
                 language = "en"
             timings_ms["detect_language"] = round((time.perf_counter() - t0) * 1000, 2)
 
@@ -56,7 +56,7 @@ class VerificationPipeline:
             try:
                 sub_claims = self.decomposer.decompose(claim_str, language=language)
             except Exception as e:
-                print(f"[DEBUG] Decomposition failed: {e}")
+                errors.append(f"Decomposition failed: {e}")
                 sub_claims = [claim_str]
             timings_ms["decompose"] = round((time.perf_counter() - t0) * 1000, 2)
 
@@ -85,15 +85,17 @@ class VerificationPipeline:
                         "sources": sources or [],
                     })
                 except Exception as e:
-                    print(f"[DEBUG] Sub-claim retrieval/stance failed for '{sub_claim}': {e}")
+                    err_msg = str(e)
+                    errors.append(f"'{sub_claim}': {err_msg}")
                     continue
 
             timings_ms["retrieve_and_classify"] = round((time.perf_counter() - t0) * 1000, 2)
 
             if not subclaim_results:
+                detail = "; ".join(errors[:2]) if errors else "No sources returned"
                 return {
                     "status": "error",
-                    "message": "All sub-claim retrievals failed.",
+                    "message": f"All sub-claim retrievals failed: {detail}",
                 }
 
             t0 = time.perf_counter()
