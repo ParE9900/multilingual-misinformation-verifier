@@ -20,28 +20,28 @@ class EvidenceRetriever:
         self.cache = cache
         self.client = genai.Client(api_key=self.api_key)
 
-    def _call_gemini(self, sub_claim: str) -> Any:
-        max_retries = 5
+    def _call_gemini(self, sub_claim: str, use_search: bool = True) -> Any:
+        max_retries = 2
         base_delay = 2.0
         prompt = f"Find real-time evidence to verify or refute this claim: {sub_claim}"
+        
+        config = {"tools": [{"google_search": {}}]} if use_search else None
 
         for attempt in range(max_retries):
             try:
                 return self.client.models.generate_content(
                     model=self.model,
                     contents=prompt,
-                    config={"tools": [{"google_search": {}}]},
+                    config=config,
                 )
             except Exception as e:
                 err_str = str(e).lower()
                 if "429" in err_str or "503" in err_str or "resource_exhausted" in err_str or "unavailable" in err_str:
                     if attempt == max_retries - 1:
-                        raise RuntimeError("Gemini API rate limit or service unavailable after retries.")
+                        raise RuntimeError("Gemini API rate limit or service unavailable.")
                     time.sleep(base_delay * (2 ** attempt))
                 else:
-                    if attempt == max_retries - 1:
-                        raise RuntimeError("Gemini API call failed after retries.")
-                    time.sleep(base_delay * (2 ** attempt))
+                    raise RuntimeError(f"Gemini API call failed: {e}")
 
     def _extract_grounding(self, response: Any) -> List[Dict[str, str]]:
         if not response:
@@ -151,7 +151,7 @@ class EvidenceRetriever:
         return results
 
     def retrieve(self, sub_claim: str) -> List[Dict[str, str]]:
-        """Retrieve grounded evidence for sub-claim."""
+        """Retrieve grounded evidence for sub-claim, with fallback to base knowledge."""
         sub_claim = sub_claim.strip()
         if not sub_claim:
             return []
@@ -161,10 +161,29 @@ class EvidenceRetriever:
             if cached is not None:
                 return cached
 
-        response = self._call_gemini(sub_claim)
-        results = self._extract_grounding(response)
+        # 1. Try with Search Grounding
+        try:
+            response = self._call_gemini(sub_claim, use_search=True)
+            results = self._extract_grounding(response)
+            if results:
+                if self.cache is not None:
+                    self.cache.set("evidence_retrieval", sub_claim, results)
+                return results
+        except Exception as e:
+            print(f"[DEBUG] Search grounding failed for '{sub_claim}': {e}. Falling back to base knowledge.")
 
-        if self.cache is not None and results is not None:
-            self.cache.set("evidence_retrieval", sub_claim, results)
-
-        return results
+        # 2. Fallback to base knowledge (no search tool)
+        try:
+            response = self._call_gemini(sub_claim, use_search=False)
+            snippet = response.text if hasattr(response, "text") else str(response)
+            fallback_result = [{
+                "url": "", 
+                "snippet": snippet, 
+                "title": "Generated Context (Search Unavailable)"
+            }]
+            if self.cache is not None:
+                self.cache.set("evidence_retrieval", sub_claim, fallback_result)
+            return fallback_result
+        except Exception as e:
+            print(f"[DEBUG] Base Gemini generation failed for '{sub_claim}': {e}")
+            return []

@@ -226,3 +226,5 @@ decisions.md
 
 # Raw Data (keep local, do not commit to git)
 data/raw/
+raw_test.py
+test_apis.py

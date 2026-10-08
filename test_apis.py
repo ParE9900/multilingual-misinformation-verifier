@@ -2,7 +2,7 @@ from src.config import get_config
 config = get_config()
 
 # Using official Groq SDK and latest confirmed models
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-20b"
 GEMINI_MODEL = "gemini-3.5-flash"
 
 print(f"Using Groq Model: {GROQ_MODEL}")
@@ -23,7 +23,7 @@ except Exception as e:
     print(f"Groq Raw Error: {type(e).__name__}: {e}")
 
 print(f"\nUsing Gemini Model: {GEMINI_MODEL}")
-print("--- Direct Gemini Test ---")
+print("--- Direct Gemini Test (With Search Tool) ---")
 try:
     from google import genai
     client = genai.Client(api_key=config.GEMINI_API_KEY)
@@ -33,5 +33,9 @@ try:
         config={"tools": [{"google_search": {}}]}
     )
     print("Gemini Success:", response.text)
+    if hasattr(response.candidates[0], 'grounding_metadata'):
+        print("Grounding Metadata Found:", response.candidates[0].grounding_metadata)
+    else:
+        print("No Grounding Metadata Found.")
 except Exception as e:
     print(f"Gemini Raw Error: {type(e).__name__}: {e}")

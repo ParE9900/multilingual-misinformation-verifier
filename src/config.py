@@ -12,8 +12,8 @@ class Config:
     GROQ_API_KEY: str
     GEMINI_API_KEY: str
     HF_TOKEN: str
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
-    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
+    GEMINI_MODEL: str = "gemini-3.5-flash"
     NLI_MODEL_NAME: str = "xlm-roberta-base"
     LANG_DETECT_MODEL: str = "papluca/xlm-roberta-base-language-detection"
     CACHE_DIR: str = ".cache"
